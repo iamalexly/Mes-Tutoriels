@@ -76,7 +76,33 @@ Une fois installés, nous allons par la même occasion installer les principaux 
 ```bash
 apt install php-curl php-gd php-intl php-json php-mbstring php-xml php-zip
 ```
-
+Par soucis de précautions, nous allons aussi voir comment sécuriser le répertoire ou ce trouvera votre application.  
+Sous Apache2, ce répertoire ce trouve généralement à l'emplacement `/var/www/html`  
+Comme il est conseillé de ne pas ce connecter en `root` sur votre serveur, le but de cette méthode sera de donner des droits de lecture, d'éxecution et de création à un utilisateur classique (non super utilisateur) sur le dossier qui contiendra votre application.  
+Pour ce faire, créer un nouveau groupe d'utilisateur :
+```bash
+addgroup nom_du_groupe
+```
+Ajouter l'utilisateur classique au nouveau groupe :
+```bash
+adduser nom_utilisateur nom_du_groupe
+```
+> Il faut reboot le serveur pour que les changements soient comptabilisés.
+A présent, changer groupe propriétaire du dossier `html` :
+```bash
+chgrp nom_du_groupe /var/www/html/
+```
+Pour finir, le but est d'enlever tous les droits aux utilisateur ne faisant pas partie du groupe créé précedemment et de donner tous les droits au nouveau groupe créé. Pour ce faire, éxecuter la commande :
+```bash
+chmod g+rwx, o-rwx
+```
+Voilà, c'est terminé (pour cette partie :p).  
+Par la suite, si vous n'avez plus besoin d'effectuer d'opération sur le répertoire contenant votre application, vous pouvez rechanger le groupe propriétaire du répertoire en éxecutant la commande :
+```bash
+chgrp root /var/www/html/
+```
+L'utilisateur classique n'aura alors plus aucun droits sur le dossier.
+> N'oubliez pas de reboot votre serveur pour que les changements soient pris en compte.
 ---
 
 ## Etape 03 - Configurer MariaDB
@@ -145,6 +171,7 @@ A propos des connexions SSH et des clés asymétriques :
 A propos des serveurs LAMP :
 - [Qu'est ce qu'un serveur LAMP (http://fr.open-lamp.com/quest-ce-quun-serveur-web-lamp/)](http://fr.open-lamp.com/quest-ce-quun-serveur-web-lamp/)
 - [Documentation Ubuntu sur l'installation et la configuration d'un serveur LAMP (https://doc.ubuntu-fr.org/lamp)](https://doc.ubuntu-fr.org/lamp)
+- [Documentation Ubuntu sur les permissions (droits) (https://doc.ubuntu-fr.org/permissions)](https://doc.ubuntu-fr.org/permissions)
 
 A propos de MariaDB (et MySQL) :
 - [Documentation Ubuntu sur Mysql (https://doc.ubuntu-fr.org/mysql)](https://doc.ubuntu-fr.org/mysql)
