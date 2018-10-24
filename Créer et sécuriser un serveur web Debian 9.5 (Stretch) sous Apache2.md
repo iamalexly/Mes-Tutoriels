@@ -1,9 +1,9 @@
 # Créer et sécuriser un serveur web Debian 9.5 (Stretch) sous Apache2
 
 - [Etape 01 - Créer une connexion SSH sécurisé]()
-- [Etape 02 - Créer et configurer un serveur LAMP]()
-- [Etape 03 - Configurer le certificat SSL (HTTPS) d'Apache2]()
-- [Etape 04 - Configurer les redirections de ports]()
+- [Etape 02 - Créer un serveur LAMP]()
+- [Etape 03 - Configurer MariaDB]()
+- [Etape 04 - Configurer le certificat SSL (HTTPS) d'Apache2]()
 - [Etape 05 - Installer et configurer Fail2Ban]()
 - [Etape 06 - Configurer le Firewall]()
 
@@ -45,7 +45,7 @@ Remplacer cette ligne par :
 ```apacheconfig
 PermitRootLogin prohibit-password
 ```
-`prohibit-password` permet d'autoriser seulement les connexions SSH par clés.  
+`prohibit-password` permet d'autoriser seulement les connexions SSH par clés. Vous pouvez aussi choisir de désactiver la connexion au compte root via SSH en inscrivant `no` à la place de `prohibit-password`  
 Redémarrer le service SSH :
 ```bash
 service ssh restart
@@ -54,7 +54,7 @@ La connexion SSH et à présent sécurisé par une paire de clés SSH asymétriq
 
 ---
 
-## Etape 02 - Créer et configurer un serveur LAMP
+## Etape 02 - Créer un serveur LAMP
 
 Pour commencer, à l'heure où j'écrit ce guide les versions des composants de mon serveur sont les suivantes :
 - Apache2
@@ -69,6 +69,8 @@ Une fois installés, nous allons par la même occasion installer les principaux 
 ```bash
 apt install php-curl php-gd php-intl php-json php-mbstring php-xml php-zip
 ```
+
+## Etape 03 - Configurer MariaDB
 A présent, ouvrir MariaDB en ligne de commande :
 ```bash
 mariadb
@@ -91,7 +93,7 @@ FLUSH PRIVILEGES;
 ```
 Il est à présent temps de sécuriser le compte utilisateur `root` des bases de données.  
 Ce compte a notamment accés à la base de données `mysql` qui contient la configuration du serveur mais aussi la configuration des utilisateurs des bases de données (mot de passe, privilèges...).  
-Tout d'abord, ce connecter en `root| à la base de données :
+Tout d'abord, ce connecter en `root` à la base de données :
 ```bash
 mariadb -u root -p
 ```
@@ -117,3 +119,4 @@ Dorénavant, pour se connecter au compte `root` MySQL il faudra utiliser la comm
 mariadb -u root -p
 ```
 Puis entrer le mot de passe définie quelques instants plus tôt.
+Votre base de données aura maintenant un utilisateur ayant tous les droits sur une base de données, et un utilisateur `root` ayant un mot de passe qui aura quand à lui des droits sur toutes les bases de données.
