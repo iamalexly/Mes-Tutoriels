@@ -89,9 +89,9 @@ Terminer l'opération avec la commande :
 ```mysql
 FLUSH PRIVILEGES;
 ```
-Il est à présent temps de sécuriser le compte utilisateur root des bases de données.  
+Il est à présent temps de sécuriser le compte utilisateur `root` des bases de données.  
 Ce compte a notamment accés à la base de données `mysql` qui contient la configuration du serveur mais aussi la configuration des utilisateurs des bases de données (mot de passe, privilèges...).  
-Tout d'abord, ce connecter en root à la base de données :
+Tout d'abord, ce connecter en `root| à la base de données :
 ```bash
 mariadb -u root -p
 ```
@@ -99,7 +99,7 @@ Ensuite, entrer la requête suivante :
 ```mysql
 UPDATE user SET plugin = NULL WHERE User = 'root';
 ```
-Cette requête a pour but de supprimer les plugins de l'utilisateur root qui peuvent bloquer la connexion ou la (re)définition du mot de passe du compte root.  
+Cette requête a pour but de supprimer les plugins de l'utilisateur `root` qui peuvent bloquer la connexion ou la (re)définition du mot de passe du compte `root`.
 Executer ensuite la requête suivante :
 ```mysql
 SET PASSWORD FOR root@'localhost' = PASSWORD('nouveauMDP');
