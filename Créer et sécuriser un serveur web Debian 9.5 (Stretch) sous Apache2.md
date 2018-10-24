@@ -68,18 +68,18 @@ A présent, ouvrir MariaDB en ligne de commande :
 mariadb
 ```
 Créer une nouvelle base de données :
-```mariadb
+```mysql
 CREATE DATABASE nomDeLaBDD;
 ```
 Créer un utilisateur :
-```mariadb
+```mysql
 CREATE USER 'nomDutilisateur'@'localhost' IDENTIFIED BY 'mdp';
 ```
 Puis lui donner tous les droits (CRUD) sur la base de données précedemment créée à l'ai de la commande :
-```mariadb
+```mysql
 GRANT ALL PRIVILEGES ON nomDeLaBDD.* TO 'nomDutilisateur'@'localhost' WITH GRANT OPTION;
 ```
 Terminer l'opération avec la commande :
-```mariadb
+```mysql
 FLUSH PRIVILEGES;
 ```
