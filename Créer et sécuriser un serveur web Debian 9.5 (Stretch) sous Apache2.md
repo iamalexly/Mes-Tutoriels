@@ -94,7 +94,7 @@ chgrp nom_du_groupe /var/www/html/
 ```
 Pour finir, le but est d'enlever tous les droits aux utilisateur ne faisant pas partie du groupe créé précedemment et de donner tous les droits au nouveau groupe créé. Pour ce faire, éxecuter la commande :
 ```bash
-chmod g+rwx, o-rwx
+chmod g+rwx,o-rwx /var/www/html/
 ```
 Voilà, c'est terminé (pour cette partie :p).  
 Par la suite, si vous n'avez plus besoin d'effectuer d'opération sur le répertoire contenant votre application, vous pouvez rechanger le groupe propriétaire du répertoire en éxecutant la commande :
