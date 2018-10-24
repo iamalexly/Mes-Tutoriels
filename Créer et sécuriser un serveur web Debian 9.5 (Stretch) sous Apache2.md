@@ -95,6 +95,10 @@ Tout d'abord, ce connecter en `root| à la base de données :
 ```bash
 mariadb -u root -p
 ```
+A présent, se placer dans la base de données `mysql` :
+```mysql
+USE mysql
+```
 Ensuite, entrer la requête suivante :
 ```mysql
 UPDATE user SET plugin = NULL WHERE User = 'root';
