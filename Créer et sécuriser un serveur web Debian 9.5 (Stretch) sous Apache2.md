@@ -87,12 +87,12 @@ Ajouter l'utilisateur classique au nouveau groupe :
 ```bash
 adduser nom_utilisateur nom_du_groupe
 ```
-> Il faut reboot le serveur pour que les changements soient comptabilisés.
 A présent, changer groupe propriétaire du dossier `html` :
 ```bash
 chgrp nom_du_groupe /var/www/html/
 ```
-Pour finir, le but est d'enlever tous les droits aux utilisateur ne faisant pas partie du groupe créé précedemment et de donner tous les droits au nouveau groupe créé. Pour ce faire, éxecuter la commande :
+> Il faut reboot le serveur pour que les changements soient comptabilisés.
+Pour finir, le but est d'enlever les droits de lecture et d'écriture aux utilisateurs ne faisant pas partie du groupe créé précedemment et de donner tous les droits au nouveau groupe créé. Pour ce faire, éxecuter la commande :
 ```bash
 chmod g+rwx,o-rw /var/www/html/
 ```
