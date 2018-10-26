@@ -6,7 +6,7 @@ Avant de commencer, si vous trouvez des incohérences/erreurs ou si vous avez de
 - [Etape 01 - Créer une connexion SSH sécurisé]()
 - [Etape 02 - Créer un serveur LAMP]()
 - [Etape 03 - Configurer MariaDB]()
-- [Etape 04 - Configurer le Firewall]()
+- [Etape 04 - Configurer le pare-feu]()
 - [Etape 05 - Installer et configurer Fail2Ban]()
 - [Etape 06 - Configurer le certificat SSL (HTTPS) d'Apache2]()  
 - [Sources complémentaires]()
@@ -158,6 +158,128 @@ Puis entrer le mot de passe définie quelques instants plus tôt.
 Votre base de données aura maintenant un utilisateur ayant tous les droits sur une base de données, et un utilisateur `root` ayant un mot de passe qui aura quand à lui des droits sur toutes les bases de données.  
 > Le fait de définir un mot de passe pour le compte `root` et de lier un utilisateur à la base de donnée de votre application est une pratique à mettre en place pour plusieurs raisons. Par exemple, en utilisant cette méthode, si une personnes mal intentionné venait à extraire les identifiants de l'utilisateur classique de votre base de données, il pourrait ce connecter dessus, faire des opérations (CRUD) sur vos données mais il ne pourra par exemple pas supprimer entièrement la base de données (DROP)... 
 Pensez donc bien à définir les privilèges de l'utilisateur classique correctement.
+
+---
+
+## Etape 04 : Configurer le pare-feu
+Dans cette partie nous allons voir comment configurer le firewall de votre serveur.  
+Je tiens avant toutes choses à préciser que cette configuration et très simpliste.  
+Le domaine des firewall sous Linux est un sujet complexe et vaste. Si vous voulez comprendre et créer des firewall plus spécifiques, rendez-vous dans les sources complémentaires de ce guide ou des liens explicatifs sur les firewall seront présent.  
+Si vous souhaitez simplement comprendre le script ci-dessous sans aller plus loin, retenez simplement que :
+- `-A` permet d'ajouter une règle
+- `INPUT` désigne les connexions entrantes (utilisateur vers machine)
+- `OUTPUT` désigne les connexions sortantes (machine vers autre machine)
+- `dport` permet d'indiquer le port sur laquelle s'appliquera la règle
+- `ACCEPT` autorise la connexion
+- `DROP` n'autorise pas la connexion
+
+Dans un premier temps, créer un fichier `parefeu` dans le repertoire `/etc/init.d/`.  
+```bash
+nano parefeu /etc/init.d/
+```
+A présent copier/coller le code ci-dessous dans le fichier.
+```bash
+#!/bin/sh
+
+#########
+# FLUSH #
+#########
+iptables -t filter -F
+
+##############
+# POLITIQUES #
+##############
+iptables -t filter -P INPUT DROP
+iptables -t filter -P OUTPUT DROP
+iptables -t filter -P FORWARD DROP
+
+#######################
+# CONNEXIONS ETABLIES #
+#######################
+iptables -A INPUT -m state --state  ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+############
+# LOOPBACK #
+############
+iptables -t filter -A INPUT -i lo -j ACCEPT
+iptables -t filter -A OUTPUT -o lo -j ACCEPT
+
+########
+# PING #
+########
+iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -t filter -A OUTPUT -p tcp --dport 22 -j ACCEPT
+
+#######
+# SSH #
+#######
+iptables -t filter -A INPUT -p tcp --dport 6464 -j ACCEPT
+
+#################
+# HTTP / HTTPS #
+#################
+iptables -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -t filter -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -t filter -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -t filter -A OUTPUT -p tcp --dport 443 -j ACCEPT
+
+```
+Quelques explications s'imposent.  
+Les lignes :
+```bash
+##############
+# POLITIQUES #
+##############
+iptables -t filter -P INPUT DROP
+iptables -t filter -P OUTPUT DROP
+iptables -t filter -P FORWARD DROP
+```
+Permettent de désactiver toutes les connexions entrantes et sortantes de la machine.  
+Ensuite, les lignes :
+```bash
+#######################
+# CONNEXIONS ETABLIES #
+#######################
+iptables -A INPUT -m state --state  ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+```
+Permettent de ne pas désactiver les connexions entrantes et sortantes déjà établient.  
+Les lignes :
+```bash
+############
+# LOOPBACK #
+############
+iptables -t filter -A INPUT -i lo -j ACCEPT
+iptables -t filter -A OUTPUT -o lo -j ACCEPT
+```
+Permettent quand à elles d'autoriser le loopback avec la machine (`lo` = `localhost`).  
+La partie suivante :
+```bash
+########
+# PING #
+########
+iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -t filter -A OUTPUT -p tcp --dport 22 -j ACCEPT
+```
+Permet d'autoriser le IMCP (Ping).  
+Et enfin, les lignes : 
+```bash
+#######
+# SSH #
+#######
+iptables -t filter -A INPUT -p tcp --dport 6464 -j ACCEPT
+
+#################
+# HTTP / HTTPS #
+#################
+iptables -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -t filter -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -t filter -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -t filter -A OUTPUT -p tcp --dport 443 -j ACCEPT
+```
+Permettent d'accepter les connexions SSH entrantes (et non sortantes) mais aussi d'accepter les connexion HTTP et HTTPS entrantes et sortantes. En ce qui concerne les connexions sortantes pour le HTTP/HTTPS, elle ne sont utiles que si vous souhaiter executer des requêtes vers d'autres serveurs (commande `CURL`...).  
+Ce script permet donc de n'autoriser que le `Loopback`, le `ping`, la connexion `SSH` et les connexions `HTTP` et `HTTPS`.
 
 ---
 
