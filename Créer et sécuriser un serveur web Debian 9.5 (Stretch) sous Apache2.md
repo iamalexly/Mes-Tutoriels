@@ -173,7 +173,11 @@ Si vous souhaitez simplement comprendre le script ci-dessous sans aller plus loi
 - `ACCEPT` autorise la connexion
 - `DROP` n'autorise pas la connexion
 
-Dans un premier temps, créer un fichier `parefeu` dans le repertoire `/etc/init.d/`.  
+Dans un premier temps, installer `iptables` :
+```bash
+apt install iptables
+```
+Créer ensuite un fichier `parefeu` dans le repertoire `/etc/init.d/`.  
 ```bash
 nano parefeu /etc/init.d/
 ```
@@ -279,6 +283,14 @@ iptables -t filter -A INPUT -p tcp --dport 443 -j ACCEPT
 iptables -t filter -A OUTPUT -p tcp --dport 443 -j ACCEPT
 ```
 Permettent d'accepter les connexions SSH entrantes (et non sortantes) mais aussi d'accepter les connexion HTTP et HTTPS entrantes et sortantes. En ce qui concerne les connexions sortantes pour le HTTP/HTTPS, elle ne sont utiles que si vous souhaiter executer des requêtes vers d'autres serveurs (commande `CURL`...).  
+Pour finir, il faut pouvoir executer ce script à chaque démarrage du serveur. Pour ce faire :
+```bash
+chmod +x /etc/init.d/parefeu
+```
+Puis :
+```bash
+update-rc.d parefeu defaults
+```
 Ce script permet donc de n'autoriser que le `Loopback`, le `ping`, la connexion `SSH` et les connexions `HTTP` et `HTTPS`.
 
 ---
@@ -299,3 +311,9 @@ A propos de MariaDB (et MySQL) :
 - [Documentation Ubuntu sur Mysql (https://doc.ubuntu-fr.org/mysql)](https://doc.ubuntu-fr.org/mysql)
 - [Documentation Ubuntu sur MariaDB (https://doc.ubuntu-fr.org/mariadb)](https://doc.ubuntu-fr.org/mariadb)
 - [Tutoriel sur les privilèges utilisateur (https://www.hostinger.fr/tutoriels/creer-un-utilisateur-mysql/)](https://www.hostinger.fr/tutoriels/creer-un-utilisateur-mysql/)
+
+A propos des parefeu :
+- [Sécuriser son serveur Linux (https://openclassrooms.com/fr/courses/1197906-securiser-son-serveur-linux)](https://openclassrooms.com/fr/courses/1197906-securiser-son-serveur-linux)
+- [Tutoriel vidéo (FR) iptables (https://www.grafikart.fr/formations/serveur-linux/iptables)](https://www.grafikart.fr/formations/serveur-linux/iptables)
+- [Guide complet iptables (https://www.inetdoc.net/guides/iptables-tutorial/)](https://www.inetdoc.net/guides/iptables-tutorial/)
+- [Tutoriel iptables (https://www.malekal.com/tutoriel-iptables/)](https://www.malekal.com/tutoriel-iptables/)
