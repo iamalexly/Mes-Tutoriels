@@ -295,6 +295,62 @@ Ce script permet donc de n'autoriser que le `Loopback`, le `ping`, la connexion 
 
 ---
 
+## Etape 05 - Installer et configurer Fail2Ban
+> fail2ban est une application qui analyse les logs de divers services (SSH, Apache, FTP…) en cherchant des correspondances entre des motifs définis dans ses filtres et les entrées des logs. Lorsqu'une correspondance est trouvée une ou plusieurs actions sont exécutées. Typiquement, fail2ban cherche des tentatives répétées de connexions infructueuses dans les fichiers journaux et procède à un bannissement en ajoutant une règle au pare-feu iptables pour bannir l'adresse IP de la source.
+
+(Source : [https://doc.ubuntu-fr.org/fail2ban](https://doc.ubuntu-fr.org/fail2ban))
+
+Nous allons dans cette partie configurer `Fail2Ban` pour bloquer les tentatives de connexions répétés au service SSH.  
+Pour ce faire, installer `Fail2Ban` :
+```bash
+apt install fail2ban
+```
+Une fois installé, rendez-vous dans le fichier `/etc/fail2ban/jail.d/defaults-debian.conf`, puis ajoutez le code ci-dessous :
+```bash
+[DEFAULT]
+findtime = 3600
+bantime = 18000
+maxretry = 3
+
+[sshd]
+enabled = true
+```
+- `findtime` correspond au temps en secondes depuis lequel une anomalie est recherchée dans les logs
+- `bantime` correspond au temps de banissement en seconde d'une IP
+- `maxretry` correspond au nombre de tentative maximum  
+
+> Si vous avez changer le port de `SSH`, ajoutez la ligne suivante sous `enabled = true` :
+```bash
+port = le_port_ssh
+```
+> Si vous voulez recevoir des notifications par mail lorsque Fail2Ban bloque une IP, éditer le fichier `/etc/fail2ban/jail.conf` et chercher la ligne `destemail` puis remplacer l'adresse email présente par la votre.  
+
+Puis, redémarrer le service `Fail2Ban` pour appliquer les modifications :
+```bash
+systemctl restart fail2ban
+```
+Vous pouvez voir si le service est bien fonctionnel à l'aide de la commande :
+```bash
+fail2ban-client status
+```
+> Le bloquage est fonctionnel si `SSHD` apparait dans la `Jail List`.
+
+Vous pouvez voir les bloquages SSH en cours avec la commande :
+```bash
+fail2ban-client status sshd
+```
+Vous pouvez aussi arrêter ou démarrer un bloquage sur un service spécifique à l'aide de la commande :
+```bash
+# Arrêter
+fail2ban-client stop sshd
+# Démarrer
+fail2ban-client stop sshd
+```
+
+
+
+---
+
 ## Sources complémentaires :  
 
 A propos des connexions SSH et des clés asymétriques :
@@ -316,4 +372,9 @@ A propos des parefeu :
 - [Sécuriser son serveur Linux (https://openclassrooms.com/fr/courses/1197906-securiser-son-serveur-linux)](https://openclassrooms.com/fr/courses/1197906-securiser-son-serveur-linux)
 - [Tutoriel vidéo (FR) iptables (https://www.grafikart.fr/formations/serveur-linux/iptables)](https://www.grafikart.fr/formations/serveur-linux/iptables)
 - [Guide complet iptables (https://www.inetdoc.net/guides/iptables-tutorial/)](https://www.inetdoc.net/guides/iptables-tutorial/)
-- [Tutoriel iptables (https://www.malekal.com/tutoriel-iptables/)](https://www.malekal.com/tutoriel-iptables/)
+- [Tutoriel iptables (https://www.malekal.com/tutoriel-iptables/)](https://www.malekal.com/tutoriel-iptables/)  
+
+A propos de Fail2Ban :
+- [Documentation Ubuntu Fail2Ban (https://doc.ubuntu-fr.org/fail2ban)](https://doc.ubuntu-fr.org/fail2ban)
+- [Protéger son serveur en utilisant Fail2Ban (https://blog.nicolargo.com/2012/02/proteger-son-serveur-en-utilisant-fail2ban.html)](https://blog.nicolargo.com/2012/02/proteger-son-serveur-en-utilisant-fail2ban.html)
+- [Tutoriel Développé.com Fail2Ban (https://reseau.developpez.com/tutoriels/fail2ban/)](https://reseau.developpez.com/tutoriels/fail2ban/#L3-4)
