@@ -13,6 +13,8 @@
 
 - ``docker ps -a`` - Permet de voir l'ensemble des containers ainsi que leurs détails présents sur votre ordinateur.  
 
+- ``docker start 8ef14db41758`` - Permet de démarrer un container. (Remplacer "8ef14db41758" par l'ID du container désiré).
+
 - ``docker exec -ti 8ef14db41758`` - Permet d'ouvrir un shell dans le container pour executer des commandes.
 (Remplacer "8ef14db41758" par l'ID du container désiré). 
 
